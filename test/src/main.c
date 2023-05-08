@@ -1,6 +1,6 @@
-#include <scratchbuff/config.h>
-#include <scratchbuff/macros.h>
-#include <scratchbuff/scratchbuff.h>
+#include <bytepager/config.h>
+#include <bytepager/macros.h>
+#include <bytepager/bytepager.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +20,7 @@ static const char *mock_strings[] = {"hello world", "fruit", "apple", "banana",
 #define SB_ASSERT(expr)                                                        \
   {                                                                            \
     if (!(expr)) {                                                             \
-      SCRATCHBUFF_WARNING(stderr, "[Fail]: `%s`\n", #expr);                    \
+      BYTEPAGER_WARNING(stderr, "[Fail]: `%s`\n", #expr);                    \
       exit(0);                                                                 \
     } else if (!ONLY_OUTPUT_FAILS) {					       \
       fprintf(stdout, "[OK]: %s\n", #expr);                                    \
@@ -33,33 +33,33 @@ static void test_allocate_clear_allocate_destroy() {
   
   size_t num_mock_strings = sizeof(mock_strings) / sizeof(mock_strings[0]);
 
-  ScratchBuff buff = {0};
-  scratchbuff_init(&buff, (ScratchBuffConfig){.max_page_traversal = 32,
+  Bytepager buff = {0};
+  bytepager_init(&buff, (BytepagerConfig){.max_page_traversal = 32,
                                               .page_capacity_bytes = 256});
 
   for (int i = 0; i < NUM_MALLOCS_A; i++) {
     const char *expected = mock_strings[i % num_mock_strings];
-    const char *copied = scratchbuff_strdup(&buff, expected);
+    const char *copied = bytepager_strdup(&buff, expected);
     SB_ASSERT(copied != 0);
     SB_ASSERT(strcmp(copied, expected) == 0);
   }
 
-  scratchbuff_clear(&buff);
+  bytepager_clear(&buff);
 
   for (int i = 0; i < NUM_MALLOCS_B; i++) {
     const char *expected = mock_strings[i % num_mock_strings];
-    const char *copied = scratchbuff_strdup(&buff, expected);
+    const char *copied = bytepager_strdup(&buff, expected);
     SB_ASSERT(copied != 0);
     SB_ASSERT(strcmp(copied, expected) == 0);
   }
 
-  int64_t n_pages = scratchbuff_count_pages(&buff);
+  int64_t n_pages = bytepager_count_pages(&buff);
 
   SB_ASSERT(n_pages > 0);
 
-  scratchbuff_destroy(&buff);
+  bytepager_destroy(&buff);
 
-  n_pages = scratchbuff_count_pages(&buff);
+  n_pages = bytepager_count_pages(&buff);
 
   SB_ASSERT(n_pages == 0);
 }
@@ -69,33 +69,33 @@ static void test_allocate_after_destroy() {
   
   size_t num_mock_strings = sizeof(mock_strings) / sizeof(mock_strings[0]);
 
-  ScratchBuff buff = {0};
-  scratchbuff_init(&buff, (ScratchBuffConfig){.max_page_traversal = 32,
+  Bytepager buff = {0};
+  bytepager_init(&buff, (BytepagerConfig){.max_page_traversal = 32,
                                               .page_capacity_bytes = 256});
 
   for (int i = 0; i < NUM_MALLOCS_A; i++) {
     const char *expected = mock_strings[i % num_mock_strings];
-    const char *copied = scratchbuff_strdup(&buff, expected);
+    const char *copied = bytepager_strdup(&buff, expected);
     SB_ASSERT(copied != 0);
     SB_ASSERT(strcmp(copied, expected) == 0);
   }
 
-  scratchbuff_destroy(&buff);
+  bytepager_destroy(&buff);
 
   for (int i = 0; i < NUM_MALLOCS_B; i++) {
     const char *expected = mock_strings[i % num_mock_strings];
-    const char *copied = scratchbuff_strdup(&buff, expected);
+    const char *copied = bytepager_strdup(&buff, expected);
     SB_ASSERT(copied != 0);
     SB_ASSERT(strcmp(copied, expected) == 0);
   }
 
-  int64_t n_pages = scratchbuff_count_pages(&buff);
+  int64_t n_pages = bytepager_count_pages(&buff);
 
   SB_ASSERT(n_pages > 0);
 
-  scratchbuff_destroy(&buff);
+  bytepager_destroy(&buff);
 
-  n_pages = scratchbuff_count_pages(&buff);
+  n_pages = bytepager_count_pages(&buff);
 
   SB_ASSERT(n_pages == 0);
 }
