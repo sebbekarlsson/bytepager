@@ -5,12 +5,12 @@
 ```C
 Bytepager pager = {0};
 bytepager_init(&pager, (BytepagerConfig){
-	// capacity of each page (in bytes)
-    .page_capacity_bytes = 256,
+  // capacity of each page (in bytes)
+  .page_capacity_bytes = 256,
 	
-	// a limit to how far we should reach for a new page
-	// if the current page is full.
-	.max_page_traversal = 32
+  // a limit to how far we should reach for a new page
+  // if the current page is full.
+  .max_page_traversal = 32
 });
 
 // malloc
